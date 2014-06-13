@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<org.jenkinsci.plugins.envinject.EnvInjectNodeProperty_-EnvInjectNodePropertyDescriptor plugin="envinject@1.87">
+  <envInjectGlobalPasswordEntries>
+<% @passwords.each do |name| -%>
+    <org.jenkinsci.plugins.envinject.EnvInjectGlobalPasswordEntry>
+      <name><%= name %></name>
+      <value></value>
+    </org.jenkinsci.plugins.envinject.EnvInjectGlobalPasswordEntry>
+<% end -%>
+  </envInjectGlobalPasswordEntries>
+</org.jenkinsci.plugins.envinject.EnvInjectNodeProperty_-EnvInjectNodePropertyDescriptor>
