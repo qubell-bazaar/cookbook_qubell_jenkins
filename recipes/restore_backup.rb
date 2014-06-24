@@ -9,9 +9,9 @@ end
 
 require "pathname"
 
-if ( node["jenkins"]["backup_uri"].start_with?('http:','https:','ftp:','file:'))
+if ( node["qubell_jenkins"]["backup_uri"].start_with?('http:','https:','ftp:','file:'))
   require 'uri'
-  backup = node['jenkins']['backup_uri']
+  backup = node['qubell_jenkins']['backup_uri']
   uri = URI.parse(backup)
   file_name = File.basename(uri.path)
   ext_name = File.extname(file_name)
@@ -34,7 +34,7 @@ if ( node["jenkins"]["backup_uri"].start_with?('http:','https:','ftp:','file:'))
   
   file_name = File.basename(target_file)
 
-  case node['jenkins']['server']['restore_backup']
+  case node['qubell_jenkins']['restore_type']
   when "full"
     #run cleanup jenkins_home and extract all files from archive to jenkins_home
     case ext_name

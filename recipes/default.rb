@@ -8,10 +8,6 @@ case node[:platform_family]
       action :stop
     end
   when "redhat"
-    execute "add gpg key" do
-      command "sudo rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key"
-    end
-
     service "iptables" do
       action :stop
     end
@@ -21,7 +17,7 @@ include_recipe "jenkins::server"
 
 template ::File.join(node['jenkins']['server']['home'], "config.xml") do
   owner node['jenkins']['server']['user']
-  group 'nogroup'
+  group node['jenkins']['server']['group']
   source "config.xml.erb"
   #action :create_if_missing
   notifies :restart, 'service[jenkins]', :delayed
@@ -41,11 +37,16 @@ end
 
 directory ::File.join(node['jenkins']['server']['home'], "plugins") do
   owner node['jenkins']['server']['user']
-  group 'nogroup'
+  group node['jenkins']['server']['group']
   action :create
   notifies :restart, 'service[jenkins]', :delayed
 end
 
-case node["platform_family"]
-  when "debian"
-  end
+if (!node['qubell_jenkins']['plugins'].empty?)
+  node.set['jenkins']['server']['plugins']=node['qubell_jenkins']['plugins']
+  include_recipe "cookbook_qubell_jenkins::plugins_management"
+end
+
+if (!node['qubell_jenkins']['backup_uri'].empty? && !node['qubell_jenkins']['restore_type'].empty?)
+  include_recipe "cookbook_qubell_jenkins::restore_backup"
+end

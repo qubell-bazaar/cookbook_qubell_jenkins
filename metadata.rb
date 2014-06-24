@@ -11,4 +11,5 @@ depends "chef-solo-search", "0.4.0"
 depends 'runit', '>= 1.0.0'
 depends 'jenkins', '= 1.2.2'
 depends 'ohai', '= 1.1.12'
+depends 'yum', '= 2.4.4'
 ##depends        "nginx", "2.0.5"
