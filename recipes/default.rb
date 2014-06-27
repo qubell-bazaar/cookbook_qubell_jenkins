@@ -7,7 +7,7 @@ case node[:platform_family]
     service "ufw" do
       action :stop
     end
-  when "redhat"
+  when "rhel"
     service "iptables" do
       action :stop
     end
