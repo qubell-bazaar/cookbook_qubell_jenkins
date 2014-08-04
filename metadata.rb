@@ -2,7 +2,7 @@ maintainer       "Qubell Inc."
 maintainer_email "abutovich@qubell.com"
 license          "All rights reserved"
 description      "Provision Jenkins CI"
-version          "0.1.2"
+version          "0.1.3"
 
 depends "apt", "1.1.1"
 depends "java", "1.23.0"
