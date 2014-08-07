@@ -93,6 +93,9 @@ if ( node["qubell_jenkins"]["backup_uri"].start_with?('http:','https:','ftp:','f
       end
       action :nothing
     end
+
+    require 'digest/md5'
+    node.set['qubell_jenkins']['state'] = Digest::MD5.hexdigest(Time.now.to_s)
    
   when "jobs"
     #run cleanup on  jenkins_home/jobs and extract all files from archive
