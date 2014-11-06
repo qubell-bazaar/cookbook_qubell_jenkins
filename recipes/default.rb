@@ -42,6 +42,8 @@ directory ::File.join(node['jenkins']['server']['home'], "plugins") do
   notifies :restart, 'service[jenkins]', :delayed
 end
 
+node.set['qubell_jenkins']['state']="installed"
+
 if (!node['qubell_jenkins']['plugins'].empty?)
   node.set['jenkins']['server']['plugins']=node['qubell_jenkins']['plugins']
   include_recipe "cookbook_qubell_jenkins::plugins_management"
