@@ -15,6 +15,20 @@ case node[:platform_family]
     service "iptables" do
       action :stop
     end
+  when "windows"
+    windows_features=["NetFx4","NetFx3"]
+    windows_features.each do |f|
+      windows_feature f do
+        action :install
+        all true
+      end
+    end
+    powershell_script "disable_firewall" do
+      flags "-ExecutionPolicy Unrestricted"
+      code <<-EOH
+        netsh advfirewall set allprofiles state off
+      EOH
+    end
   end
 
 include_recipe "jenkins::node"
