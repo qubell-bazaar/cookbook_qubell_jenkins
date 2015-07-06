@@ -1,15 +1,11 @@
 maintainer       "Qubell Inc."
 maintainer_email "abutovich@qubell.com"
 license          "All rights reserved"
+name		 "cookbook_qubell_jenkins"
 description      "Provision Jenkins CI"
-version          "0.1.5"
+version          "0.1.6"
 
-depends "apt", "1.1.1"
-depends "java", "1.23.0"
-depends "openssl", "1.1.1"
-depends "chef-solo-search", "0.4.0"
-depends 'runit', '>= 1.0.0'
-depends 'jenkins', '= 1.2.2'
-depends 'ohai', '= 1.1.12'
-depends 'yum', '= 2.4.4'
-depends 'windows', '= 1.30.2'
+depends "java", "= 1.31.0" 
+depends "openssl", "4.1.1"
+depends 'jenkins', '= 2.3.1'
+depends 'windows', '= 1.37.0'

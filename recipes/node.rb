@@ -1,3 +1,5 @@
+include_recipe "java"
+
 case node[:platform_family]
   when "debian"
     execute "update packages cache" do
@@ -16,13 +18,13 @@ case node[:platform_family]
       action :stop
     end
   when "windows"
-    windows_features=["NetFx4","NetFx3"]
-    windows_features.each do |f|
-      windows_feature f do
-        action :install
-        all true
-      end
-    end
+#    windows_features=["NetFx4","NetFx3"]
+#    windows_features.each do |f|
+#      windows_feature f do
+#        action :install
+        #all true
+#      end
+#    end
     powershell_script "disable_firewall" do
       flags "-ExecutionPolicy Unrestricted"
       code <<-EOH
@@ -31,4 +33,19 @@ case node[:platform_family]
     end
   end
 
-include_recipe "jenkins::node"
+node.run_state[:jenkins_username] = node[:jenkins][:cli][:username]
+node.run_state[:jenkins_password] = node[:jenkins][:cli][:password]
+case node[:platform]
+  when "linux", "amazon"
+  jenkins_jnlp_slave node[:jenkins][:node][:name] do
+    availability node[:jenkins][:node][:availability]
+    action :"#{node[:jenkins][:node][:action]}"
+  end
+  when "windows"
+  jenkins_windows_slave node[:jenkins][:node][:name] do
+    user '.\Administrator'
+    password node[:jenkins][:windows][:password]
+    availability node[:jenkins][:node][:availability]
+    action :"#{node[:jenkins][:node][:action]}"
+  end
+end

@@ -13,11 +13,23 @@ case node[:platform_family]
     end
   end
 
-include_recipe "jenkins::server"
+if node['jenkins']['master']['version'].empty?
+  node.set['jenkins']['master']['version'] = nil
+end
 
-template ::File.join(node['jenkins']['server']['home'], "config.xml") do
-  owner node['jenkins']['server']['user']
-  group node['jenkins']['server']['group']
+include_recipe "java"
+include_recipe "jenkins::master"
+
+remote_file "/tmp/dummy.manager" do
+  source "http://#{node["ipaddress"]}:#{node["jenkins"]["master"]["port"]}"
+  backup false
+  retries 30
+  retry_delay 10
+end
+
+template ::File.join(node['jenkins']['master']['home'], "config.xml") do
+  owner node['jenkins']['master']['user']
+  group node['jenkins']['master']['group']
   source "config.xml.erb"
   #action :create_if_missing
   notifies :restart, 'service[jenkins]', :delayed
@@ -25,30 +37,30 @@ end
 
 # Create admin user
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
-node.set_unless['jenkins']['server']['admin_password'] = secure_password
-require 'openssl'
-salt = OpenSSL::Random::random_bytes(4).unpack('H*')[0]
-pwencoded = OpenSSL::Digest::SHA256::hexdigest("#{node.jenkins.server.admin_password}{#{salt}}")
-cookbook_qubell_jenkins_user "admin" do
-  comment "Global Admin"
-  password "#{salt}:#{pwencoded}"
-  action :create
-end
-
-directory ::File.join(node['jenkins']['server']['home'], "plugins") do
-  owner node['jenkins']['server']['user']
-  group node['jenkins']['server']['group']
+node.set_unless['jenkins']['master']['admin_password'] = secure_password
+jenkins_user "admin" do
+  full_name "Global Admin"
+  password node.jenkins.master.admin_password
   action :create
   notifies :restart, 'service[jenkins]', :delayed
 end
 
+bash "Waiting application start" do
+  user "root"
+  code <<-EOH
+  i=0
+  http=000
+  while [ $i -le 30 ]; do
+    if [ "$http" -ne "200" ] && [ "$http" -ne "403" ]; then
+      sleep 10
+      ((i++))
+      http=`curl -s -w "%{http_code}" "http://#{node["ipaddress"]}:#{node["jenkins"]["master"]["port"]}" -o /dev/null`
+    else
+      exit 0
+    fi
+  done
+  exit 1
+  EOH
+end
+
 node.set['qubell_jenkins']['state']="installed"
-
-if (!node['qubell_jenkins']['plugins'].empty?)
-  node.set['jenkins']['server']['plugins']=node['qubell_jenkins']['plugins']
-  include_recipe "cookbook_qubell_jenkins::plugins_management"
-end
-
-if (!node['qubell_jenkins']['backup_uri'].empty? && !node['qubell_jenkins']['restore_type'].empty?)
-  include_recipe "cookbook_qubell_jenkins::restore_backup"
-end
